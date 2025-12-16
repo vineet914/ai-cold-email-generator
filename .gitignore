@@ -167,3 +167,5 @@ vectorstore/
 
 # Ignore temporary text files
 s.txt
+# Ignore Jupyter notebooks
+*.ipynb
