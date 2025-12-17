@@ -6,8 +6,11 @@ from langchain_core.exceptions import OutputParserException
 
 class Chain:
     def __init__(self):
-        self.llm = ChatGroq(temperature=0, groq_api_key=os.environ.get("GROQ_API_KEY")
-, model_name="llama3-8b-8192")
+       self.llm = ChatGroq(
+    temperature=0,
+    groq_api_key=os.environ.get("GROQ_API_KEY"),
+    model_name="llama-3.1-8b-instant"
+)
 
     def extract_jobs(self, cleaned_text):
         prompt_extract = PromptTemplate.from_template(
