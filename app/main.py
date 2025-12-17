@@ -1,9 +1,18 @@
 import streamlit as st
-from langchain_community.document_loaders import WebBaseLoader
+import requests
+from bs4 import BeautifulSoup
 
 from chains import Chain
 from portfolio import Portfolio
 from utils import clean_text
+
+
+def scrape_website(url: str) -> str:
+    headers = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(url, headers=headers, timeout=10)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
+    return soup.get_text(separator=" ", strip=True)[:3000]
 
 
 def create_streamlit_app(chain, portfolio):
@@ -20,20 +29,12 @@ def create_streamlit_app(chain, portfolio):
         value="https://jobs.nike.com/job/R-33460"
     )
 
-    submit_button = st.button("Generate Email")
-
-    if submit_button:
+    if st.button("Generate Email"):
         try:
-            # Load webpage
-            loader = WebBaseLoader([url_input])
-            docs = loader.load()
+            raw_text = scrape_website(url_input)
+            cleaned_text = clean_text(raw_text)
 
-            # Limit content size to avoid context overflow
-            content = docs[0].page_content[:3000]
-            data = clean_text(content)
-
-            # Generate email
-            jobs = chain.extract_jobs(data)
+            jobs = chain.extract_jobs(cleaned_text)
             portfolio.load_portfolio()
             emails = chain.write_mail(jobs, portfolio)
 
@@ -41,7 +42,7 @@ def create_streamlit_app(chain, portfolio):
             st.write(emails)
 
         except Exception as e:
-            st.error(f"An Error Occurred: {e}")
+            st.error(f"Error: {e}")
 
 
 if __name__ == "__main__":
