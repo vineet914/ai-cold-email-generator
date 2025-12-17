@@ -35,25 +35,34 @@ def create_streamlit_app(chain, portfolio):
         value="https://jobs.nike.com/job/R-33460"
     )
 
-    if st.button("Generate Email"):
-        try:
-            with st.spinner("Scraping job page and generating email..."):
-                raw_text = scrape_website(url_input)
-                cleaned_text = clean_text(raw_text)
+   if st.button("Generate Email"):
+    try:
+        with st.spinner("Scraping job page and generating email..."):
+            raw_text = scrape_website(url_input)
+            cleaned_text = clean_text(raw_text)
 
-                jobs = chain.extract_jobs(cleaned_text)
-                if not jobs:
-                    st.error("No job information found on this page.")
-                    return
+            jobs = chain.extract_jobs(cleaned_text)
+            if not jobs:
+                st.error("No job information found on this page.")
+                return
 
-                portfolio.load_portfolio()
-                email = chain.write_mail(jobs[0], portfolio.links)
+            portfolio.load_portfolio()
 
-                st.success("Email generated successfully!")
-                st.text_area("Generated Email", email, height=350)
+            skills = jobs[0].get("skills", [])
+            links_metadata = portfolio.query_links(skills)
 
-        except Exception as e:
-            st.error(f"Error: {e}")
+            links = []
+            if links_metadata and links_metadata[0]:
+                links = [item["links"] for item in links_metadata[0]]
+
+            email = chain.write_mail(jobs[0], links)
+
+            st.success("Email generated successfully!")
+            st.text_area("Generated Email", email, height=350)
+
+    except Exception as e:
+        st.error(f"Error: {e}")
+
 
 
 if __name__ == "__main__":
