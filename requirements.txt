@@ -7,3 +7,7 @@ langchain-groq==0.1.9
 chromadb==0.5.0
 pandas==2.0.2
 python-dotenv==1.0.0
+
+requests==2.32.5
+beautifulsoup4==4.12.3
+
