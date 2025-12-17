@@ -1,7 +1,4 @@
 import streamlit as st
-import requests
-from bs4 import BeautifulSoup
-
 from chains import Chain
 from portfolio import Portfolio
 from utils import clean_text
